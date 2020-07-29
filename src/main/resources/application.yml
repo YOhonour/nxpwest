@@ -1,0 +1,41 @@
+
+spring:
+  datasource:
+    username: root
+    password: 78652Acd@
+    url: jdbc:mysql://39.108.158.74:3306/nxp?serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    data: classpath:/static/group_type.sql
+#    initialization-mode: always
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initialSize: 5
+      minIdle: 5
+      maxActive: 20
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      #   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat
+      maxPoolPreparedStatementPerConnectionSize: 20
+      useGlobalDataSourceStat: true
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+  jpa:
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true #在测试环境(Junit)中使用懒加载会错误
+    #    其余属性在JPARepository中
+    hibernate:
+      #      在更新或时新建表
+#      ddl-auto: create
+      ddl-auto: update
+
+    #      显示SQL
+    show-sql: true
+
+#debug: true
