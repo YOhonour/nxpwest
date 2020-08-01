@@ -33,4 +33,8 @@ public class GroupTypeService {
         GroupType byType = groupTypeDao.findByType(teamTypeName);
         return byType;
     }
+
+    public List<GroupType> findAll() {
+        return groupTypeDao.findAll();
+    }
 }

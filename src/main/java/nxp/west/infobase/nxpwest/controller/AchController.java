@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @RestController
-@Api(value = "管理员接口")
+@Api(value = "管理员接口",tags = "管理员接口")
 public class AchController {
     @Autowired
     AchievementDao achievementDao;

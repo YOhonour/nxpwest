@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Map;
+
 @SpringBootTest
 public class ControllerTest {
 @Autowired
@@ -26,5 +28,12 @@ public class ControllerTest {
         controller.getCompInfo("无线节能组");
         System.out.println(info.getData());
 
+    }
+
+    @Test
+    void getCompsTest() {
+        ResultBean comps = controller.getComps();
+        Map data = comps.getData();
+        System.out.println(data);
     }
 }

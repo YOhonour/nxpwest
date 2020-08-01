@@ -87,12 +87,22 @@ public class WebExceptionHandler {
         log.error("未登录", e);
         return ResultBean.error(-13, "未登录");
     }
+
+    @ExceptionHandler
+    public ResultBean drawTimeErrorExcetion(DrawErrorException e) {
+        log.error("非法抽签时间", e);
+        log.error(e.getMessage());
+        return ResultBean.error(-14, e.getMessage());
+    }
+
     public ResultBean admin(AdminException e){
         log.error("管理员请登录");
         return ResultBean.error(-1, "管理员请登录");
     }
+
     public ResultBean admin(DrawException e){
         log.error("请勿重复抽签");
         return ResultBean.error(-1, "请勿重复抽签");
     }
+
 }

@@ -1,9 +1,10 @@
-
 spring:
   datasource:
     username: root
-    password: 78652Acd@
-    url: jdbc:mysql://39.108.158.74:3306/nxp?serverTimezone=Asia/Shanghai
+#    password: 78652Acd@
+#    password: zzmxqsmsp1syyrps.
+#    url: jdbc:mysql://39.108.158.74:3306/nxp?serverTimezone=Asia/Shanghai
+#    url: jdbc:mysql://localhost:3306/nxp?serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
     data: classpath:/static/group_type.sql
 #    initialization-mode: always
@@ -38,4 +39,29 @@ spring:
     #      显示SQL
     show-sql: true
 
+
+
+  profiles:
+    active: dev
+
+
 #debug: true
+
+---
+# 正式发布,使用学校的服务器
+spring:
+  datasource:
+    username: root
+    password: zzmxqsmsp1syyrps.
+    url: jdbc:mysql://localhost:3306/nxp?serverTimezone=Asia/Shanghai
+  profiles: pro
+
+---
+# 调试环境，使用阿里云服务器
+spring:
+  datasource:
+    username: root
+    password: 78652Acd@
+    url: jdbc:mysql://39.108.158.74:3306/nxp?serverTimezone=Asia/Shanghai
+  profiles: dev
+

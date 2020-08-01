@@ -13,4 +13,5 @@ public interface CompetitionDao extends JpaRepository<Competition,Integer>, JpaS
     Competition findOneME(String compName,String typeName);
     @Query(value = "select * from competition where group_type_name = ?1",nativeQuery = true)
     List<Competition> findAllByTypeME(String typeName);
+
 }

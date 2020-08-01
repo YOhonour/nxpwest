@@ -48,7 +48,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 if (session == null){
                     throw new LoginException();
                 }
-                Object user = session.getAttribute("user");
+                Object user = session.getAttribute("admin");
                 if (user == null){
                     throw new LoginException();
                 }

@@ -7,7 +7,6 @@ import nxp.west.infobase.nxpwest.entity.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 
 import java.util.ArrayList;

@@ -30,8 +30,8 @@ public class DrawLotsIdClass implements Serializable {
         return compId;
     }
 
-    public void setCompId(Integer compId) {
-        this.compId = compId;
+    public void setCompId(Integer compid) {
+        this.compId = compid;
     }
 
     public Integer getOrderNumber() {

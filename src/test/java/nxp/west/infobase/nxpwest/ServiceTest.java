@@ -4,24 +4,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import nxp.west.infobase.nxpwest.bean.Rank;
 import nxp.west.infobase.nxpwest.dao.AchievementDao;
 import nxp.west.infobase.nxpwest.entity.Achievement;
+import nxp.west.infobase.nxpwest.exception.DrawErrorException;
 import nxp.west.infobase.nxpwest.exception.DrawException;
 import nxp.west.infobase.nxpwest.service.AchievementService;
 import nxp.west.infobase.nxpwest.service.DrawLotsService;
 import nxp.west.infobase.nxpwest.service.RankService;
 import nxp.west.infobase.nxpwest.service.VerificationService;
-import nxp.west.infobase.nxpwest.utils.GenerateVerificationCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.cache.support.SimpleCacheManager;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +28,7 @@ public class ServiceTest {
     @Autowired
     VerificationService verificationService;
 //    @Test
-    void name1() throws JsonProcessingException, DrawException {
+    void name1() throws JsonProcessingException, DrawException, DrawErrorException {
         Integer integer = drawLotsService.doDrawLots("15086924104", 2);
         System.out.println(integer);
     }

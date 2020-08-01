@@ -4,16 +4,15 @@ import com.aliyuncs.exceptions.ClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import nxp.west.infobase.nxpwest.annotation.Admin;
 import nxp.west.infobase.nxpwest.annotation.UserLoginToken;
 import nxp.west.infobase.nxpwest.bean.Rank;
 import nxp.west.infobase.nxpwest.bean.ResultBean;
-import nxp.west.infobase.nxpwest.dao.GroupTypeDao;
 import nxp.west.infobase.nxpwest.dao.UserDao;
 import nxp.west.infobase.nxpwest.entity.Competition;
 import nxp.west.infobase.nxpwest.entity.GroupType;
 import nxp.west.infobase.nxpwest.entity.TeamInfo;
 import nxp.west.infobase.nxpwest.entity.User;
+import nxp.west.infobase.nxpwest.exception.DrawErrorException;
 import nxp.west.infobase.nxpwest.exception.DrawException;
 import nxp.west.infobase.nxpwest.service.*;
 import nxp.west.infobase.nxpwest.utils.SendSmsUtil;
@@ -21,19 +20,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.Id;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @Api(tags = "登陆用户相关接口")
@@ -51,6 +45,9 @@ public class UserController {
         logger.error("访问成功");
         return ;
     }
+
+
+
     @GetMapping("/login")
     @ApiOperation(value = "登陆",notes = "手机号和密码,返回示例：{<br>" +
             "\"code\": 0,<br>" +
@@ -85,13 +82,14 @@ public class UserController {
     @PostMapping("/signup")
     @ApiOperation(value = "注册",notes = "手机号、密码、验证码、学校名、队伍名")
     public ResultBean signup(String phone, String password,String code,String school,String teamName, HttpServletRequest request){
-        if (verificationService.isRightCode(phone,code) == false){
+        if (!verificationService.isRightCode(phone, code)){
             return ResultBean.error(-1,"验证码错误");
         }
         TeamInfo teamInfo = teamInfoService.find(school, teamName);
         if (teamInfo == null){
             return ResultBean.error(-1,"队伍不存在");
         }
+
         if (teamInfo.getTeam_captain() != null){
             return ResultBean.error(-1,"队伍已注册");
         }
@@ -107,23 +105,27 @@ public class UserController {
         }catch (DataIntegrityViolationException e){
             return ResultBean.error(-1,"用户已存在");
         }
+        verificationService.erase(phone);
         return ResultBean.success();
     }
     @PostMapping("/reset")
     @ApiOperation(value = "重置密码")
     public ResultBean resetPassword(String phone, String newPassword,String code){
-        if (verificationService.isRightCode(phone,code) == false){
+        if (!verificationService.isRightCode(phone, code)){
             return ResultBean.error(-1,"验证码错误");
         }
         User user = userDao.findByPhoneEquals(phone);
         user.setPassword(newPassword);
         userDao.save(user);
+        verificationService.erase(phone);
         return ResultBean.success();
     }
+
     @Autowired
     VerificationService verificationService;
     @Autowired
     SendSmsUtil util;
+
     @PostMapping("/code")
     @ApiOperation(value = "获取验证码",notes = "手机号和密码")
     public ResultBean login(String phone) throws ClientException {
@@ -144,7 +146,6 @@ public class UserController {
     }
     //根据分类查看比赛安排
     @GetMapping("/comps/{type_name}")
-
     @ApiOperation(value = "根据分类名查看分类下所有比赛安排",notes = "{<br>" +
             "\"code\": 0,<br>" +
             "\"message\": \"success\",<br>" +
@@ -185,14 +186,31 @@ public class UserController {
         map.put("competitions",set);
         return ResultBean.success(map);
     }
+
+    @ApiOperation("获取所有分类名及对应的比赛")
+    @GetMapping("/comps")
+    public ResultBean getComps(){
+        List<GroupType> all = groupTypeService.getAll();
+        ArrayList<Map> list = new ArrayList<>();
+        for (GroupType type : all) {
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("comps",type.getCompetitionSet());
+            data.put("type",type.getType());
+            list.add(data);
+        }
+        HashMap<String, List> map = new HashMap<>();
+        map.put("data",list);
+        return ResultBean.success(map);
+    }
+
     @Autowired
     DrawLotsService drawLotsService;
     //抽签
     @GetMapping("/draw_lots")
     @UserLoginToken
     @ApiOperation(value = "抽签",notes = "参数：比赛ID、手机号")
-    public ResultBean doDrawLots(Integer comp_id,String phone) throws JsonProcessingException, DrawException {
-        Integer integer = drawLotsService.doDrawLots(phone, comp_id);
+    public ResultBean doDrawLots(Integer type_id,String phone) throws JsonProcessingException, DrawException, DrawErrorException {
+        Integer integer = drawLotsService.doDrawLots(phone, type_id);
         if (integer == -1){
             return ResultBean.error(-1,"请勿重复抽签");
         }

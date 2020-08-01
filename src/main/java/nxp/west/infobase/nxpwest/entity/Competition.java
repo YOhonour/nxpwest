@@ -9,11 +9,15 @@ import javax.persistence.*;
  */
 @Entity
 public class Competition {
+    /**
+     * 比赛id
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comp_id")
     @JsonIgnore
     private Integer compId;
+
     @Column(name = "comp_name")
     private String compName;
 
