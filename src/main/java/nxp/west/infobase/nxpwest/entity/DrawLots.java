@@ -18,7 +18,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "draw_lots_result")
-//@IdClass(DrawLotsIdClass.class)
+@IdClass(DrawLotsIdClass.class)
 public class DrawLots {
 
 
@@ -26,24 +26,15 @@ public class DrawLots {
     @Column(name = "team_id")
     private Integer teamId;
 
-    /**
-     * 比赛id
-     * 自增
-     */
     @Id
     @Column(name = "comp_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer compId;
 
-//    @Id
+    @Id
     @Column(name = "order_number")
     private Integer orderNumber;
 
-    /**
-     * 比赛的分组
-     */
-    @Column(name = "type_id")
-    private Integer typeId;
+
 
     @Override
     public String toString() {
@@ -51,7 +42,6 @@ public class DrawLots {
                 "teamId=" + teamId +
                 ", compId=" + compId +
                 ", orderNumber=" + orderNumber +
-                ", type_id=" + typeId +
                 '}';
     }
 
@@ -78,14 +68,6 @@ public class DrawLots {
 
     public void setCompId(Integer compid) {
         this.compId = compid;
-    }
-
-    public Integer getTypeId() {
-        return typeId;
-    }
-
-    public void setTypeId(Integer typeid) {
-        this.typeId = typeid;
     }
 }
 

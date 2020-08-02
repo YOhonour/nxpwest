@@ -10,10 +10,10 @@ import java.util.Set;
 @Entity
 @Table(name = "group_type")
 public class GroupType implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "type_id")
-    @JsonIgnore
     private Integer typeId;
     @Column(name = "type_name")
     private String type;

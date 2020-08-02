@@ -209,8 +209,8 @@ public class UserController {
     @GetMapping("/draw_lots")
     @UserLoginToken
     @ApiOperation(value = "抽签",notes = "参数：比赛ID、手机号")
-    public ResultBean doDrawLots(Integer type_id,String phone) throws JsonProcessingException, DrawException, DrawErrorException {
-        Integer integer = drawLotsService.doDrawLots(phone, type_id);
+    public ResultBean doDrawLots(Integer comp_id,String phone) throws JsonProcessingException, DrawException, DrawErrorException {
+        Integer integer = drawLotsService.doDrawLots(phone, comp_id);
         if (integer == -1){
             return ResultBean.error(-1,"请勿重复抽签");
         }

@@ -31,28 +31,30 @@ public class DrawLotsService {
     /**
      * 从抽签池中，为队伍分配序号
      * @param phone 用户的手机号
-     * @param type_id 分组的id
+     * @param comp_id 比赛 id
      * @return 返回抽到的签
      * @throws JsonProcessingException
      * @throws DrawException
+     * @throws DrawErrorException
      */
     @Transactional
-    public Integer doDrawLots(String phone,Integer type_id) throws JsonProcessingException, DrawException, DrawErrorException {
+    public Integer doDrawLots(String phone,Integer comp_id) throws JsonProcessingException, DrawException, DrawErrorException {
         User user = userDao.findByPhoneEquals(phone);
         TeamInfo teamInfo = user.getTeamInfo();
         DrawLots drawLots = new DrawLots();
         drawLots.setTeamId(teamInfo.getId());
-        drawLots.setTypeId(type_id);
+        drawLots.setCompId(comp_id);
 
-        GroupType groupType = teamInfo.getType_name();
+//        这里以后还要判断，是否属于比赛组
+//        GroupType groupType = teamInfo.getType_name();
+//
+//        // 判断该队的组是否正确
+//        if (groupType!= null && !groupType.getTypeId().equals(comp_id)) {
+//            throw new DrawErrorException("不属于该比赛组");
+//        }
 
-        // 判断该队的组是否正确
-        if (groupType!= null && !groupType.getTypeId().equals(type_id)) {
-            throw new DrawErrorException("不属于该比赛组");
-        }
-
-        // pool的id对应组类型的id
-        DrawLotsPool drawLotsPool = poolDao.findByIdEquals(type_id);
+        // pool的id对应组比赛的id
+        DrawLotsPool drawLotsPool = poolDao.findByIdEquals(comp_id);
         Date date = new Date();
 
         // 判断是否开始抽签

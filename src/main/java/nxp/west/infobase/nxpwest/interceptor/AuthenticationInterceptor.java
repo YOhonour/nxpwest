@@ -32,15 +32,17 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             if (loginToken.required()) {
                 HttpSession session = httpServletRequest.getSession(false);
                 if (session == null){
+                    // 无Session，没登陆
                     throw new LoginException();
                 }
                 Object user = session.getAttribute("user");
+                // 获取不到user
                 if (user == null){
                     throw new LoginException();
                 }
             }
         }
-        //检查是否有登陆注解，没有则跳过认证
+        //检查是否有管理员注解，没有则跳过
         if (method.isAnnotationPresent(Admin.class)) {
             Admin loginToken = method.getAnnotation(Admin.class);
             if (loginToken.required()) {
@@ -54,7 +56,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 }
             }
         }
-
         return true;
     }
 
