@@ -25,6 +25,7 @@ public class DrawLotsService {
     @Autowired
     DrawLotsDao drawLotsDao;
 
+
     @Autowired
     UserDao userDao;
 
@@ -90,4 +91,9 @@ public class DrawLotsService {
         poolDao.save(drawLotsPool);
         return integer;
     }
+
+    public void saveDrawPool(DrawLotsPool pool) {
+        poolDao.save(pool);
+    }
+
 }

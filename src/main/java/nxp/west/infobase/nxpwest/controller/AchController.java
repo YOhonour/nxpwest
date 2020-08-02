@@ -1,17 +1,13 @@
 package nxp.west.infobase.nxpwest.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import nxp.west.infobase.nxpwest.bean.ResultBean;
-import nxp.west.infobase.nxpwest.dao.AchievementDao;
-import nxp.west.infobase.nxpwest.dao.CompetitionArrangementDao;
-import nxp.west.infobase.nxpwest.dao.CompetitionDao;
-import nxp.west.infobase.nxpwest.dao.TeamInfoDao;
+import nxp.west.infobase.nxpwest.dao.*;
 import nxp.west.infobase.nxpwest.entity.*;
-import nxp.west.infobase.nxpwest.service.AchievementService;
-import nxp.west.infobase.nxpwest.service.CompService;
-import nxp.west.infobase.nxpwest.service.GroupTypeService;
-import nxp.west.infobase.nxpwest.service.RankService;
+import nxp.west.infobase.nxpwest.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
@@ -38,6 +34,7 @@ public class AchController {
     AchievementService achievementService;
     @Autowired
     RankService rankService;
+
     //增加成绩 schoolName
     @PostMapping("/addScore")
     @ApiOperation(value = "增加成绩",notes = "学校名、队伍名、队伍分类名、比赛名、用时(Double)")
@@ -67,6 +64,7 @@ public class AchController {
         rankService.removeRankCache(competition.getComp_id());
         return ResultBean.success();
     }
+
     @Autowired
     CompetitionArrangementDao competitionArrangementDao;
     @Autowired
@@ -80,6 +78,7 @@ public class AchController {
         map.put("allTeamByType",all);
         return ResultBean.success(map);
     }
+
     @PostMapping("/addTeam") //
     @ApiOperation(value = "增加队伍",notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
     public ResultBean addTeam(String teamName,String schoolName,String  members,String teamTypeName){
@@ -123,6 +122,38 @@ public class AchController {
         compService.removeCompCaches(teamTypeName);
         return ResultBean.success();
     }
+
+
+
+    @Autowired
+    DrawLotsService drawLotsService;
+
+    /**
+     * 初始化抽签池
+     */
+    @PostMapping("/pool")
+    @ApiOperation(value = "初始化抽签池",notes = "比赛id 比赛队伍数量 抽签开始时间 抽签结束时间")
+    public ResultBean  saveDrawPool(Integer compId, Integer teamNumber, Date startTime, Date endTime) throws JsonProcessingException {
+        DrawLotsPool pool = new DrawLotsPool();
+        pool.setId(compId);
+        List<Integer> list = getNumbers(1, teamNumber);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String s = objectMapper.writeValueAsString(list);
+        pool.setPool(s);
+        pool.setEndTime(endTime);
+        pool.setStartTime(startTime);
+        drawLotsService.saveDrawPool(pool);
+        return ResultBean.success();
+    }
+
+    private List<Integer> getNumbers(int start,int end){
+        ArrayList<Integer> list = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            list.add(i);
+        }
+        return list;
+    }
+
     @GetMapping("/tt")
     void  tt(String name, String age, String mapJson, HttpServletRequest request){
         Enumeration<String> attributeNames = request.getAttributeNames();
