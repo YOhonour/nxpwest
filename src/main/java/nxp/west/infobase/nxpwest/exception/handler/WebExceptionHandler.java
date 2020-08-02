@@ -89,8 +89,8 @@ public class WebExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResultBean drawTimeErrorExcetion(DrawErrorException e) {
-        log.error("非法抽签时间", e);
+    public ResultBean drawErrorExcetion(DrawErrorException e) {
+        log.error("非法抽签", e);
         log.error(e.getMessage());
         return ResultBean.error(-14, e.getMessage());
     }

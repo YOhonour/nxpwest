@@ -2,6 +2,7 @@ package nxp.west.infobase.nxpwest.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import nxp.west.infobase.nxpwest.dao.CompetitionDao;
 import nxp.west.infobase.nxpwest.dao.DrawLotsDao;
 import nxp.west.infobase.nxpwest.dao.DrawLotsPoolDao;
 import nxp.west.infobase.nxpwest.dao.UserDao;
@@ -25,13 +26,16 @@ public class DrawLotsService {
     @Autowired
     DrawLotsDao drawLotsDao;
 
+    @Autowired
+    CompetitionDao competitionDao;
 
     @Autowired
     UserDao userDao;
 
     /**
      * 从抽签池中，为队伍分配序号
-     * @param phone 用户的手机号
+     *
+     * @param phone   用户的手机号
      * @param comp_id 比赛 id
      * @return 返回抽到的签
      * @throws JsonProcessingException
@@ -39,52 +43,58 @@ public class DrawLotsService {
      * @throws DrawErrorException
      */
     @Transactional
-    public Integer doDrawLots(String phone,Integer comp_id) throws JsonProcessingException, DrawException, DrawErrorException {
+    public Integer doDrawLots(String phone, Integer comp_id) throws JsonProcessingException, DrawException, DrawErrorException {
         User user = userDao.findByPhoneEquals(phone);
         TeamInfo teamInfo = user.getTeamInfo();
         DrawLots drawLots = new DrawLots();
         drawLots.setTeamId(teamInfo.getId());
         drawLots.setCompId(comp_id);
 
-//        这里以后还要判断，是否属于比赛组
-//        GroupType groupType = teamInfo.getType_name();
-//
-//        // 判断该队的组是否正确
-//        if (groupType!= null && !groupType.getTypeId().equals(comp_id)) {
-//            throw new DrawErrorException("不属于该比赛组");
-//        }
+        // 判断该队是否属于该比赛的组
+        GroupType groupType = teamInfo.getType_name();
+        Competition comp = competitionDao.findByCompId(comp_id);
+        if (groupType != null && comp != null && !groupType.getTypeId().equals(comp.getType_name().getTypeId())) {
+            throw new DrawErrorException("不属于该比赛组");
+        }
 
         // pool的id对应组比赛的id
         DrawLotsPool drawLotsPool = poolDao.findByIdEquals(comp_id);
         Date date = new Date();
 
         // 判断是否开始抽签
-        if (date.before(drawLotsPool.getStartTime()) || date.after(drawLotsPool.getEndTime())){
+        if (date.before(drawLotsPool.getStartTime()) || date.after(drawLotsPool.getEndTime())) {
             // 如果没开始，则报错
             // 返回时间
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             String startTime = format.format(drawLotsPool.getStartTime());
             String endTime = format.format(drawLotsPool.getEndTime());
-            throw new DrawErrorException(String.format("抽签时间在 %s 到 %s",startTime,endTime));
+            throw new DrawErrorException(String.format("抽签时间在 %s 到 %s", startTime, endTime));
         }
 
         // 判断是否已经抽过签
         Optional<DrawLots> one = drawLotsDao.findOne(Example.of(drawLots));
-        if (one.isPresent()){
+        if (one.isPresent()) {
             //如果查询出结果说明已经抽签
             //返回之前抽的签
             return one.get().getOrderNumber();
         }
 
-        // 抽签
+
         List<Integer> list1 = mapper.readValue(drawLotsPool.getPool(), List.class);
+        // 判断是否还能抽签
+        if (list1 == null || list1.isEmpty()) {
+            // 如果被抽完了
+            // 返回提示信息
+            throw new DrawErrorException("抽签序号已用完，请联系现场工作人员");
+        }
+
+        // 正式抽签
         // 打乱列表
         Collections.shuffle(list1);
         // 读取第一个元素 作为结果
         Integer integer = list1.get(0);
         list1.remove(0);
         drawLotsPool.setPool(mapper.writeValueAsString(list1));
-
         // 保存抽签结果到数据库中
         drawLots.setOrderNumber(integer);
         drawLotsDao.save(drawLots);

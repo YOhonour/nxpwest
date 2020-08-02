@@ -8,8 +8,16 @@ import java.util.Date;
 @Entity
 @Table(name = "draw_lots_pool")
 public class DrawLotsPool {
+
+    /**
+     * 对应比赛的id
+     */
     @Id
     Integer id;
+
+    /**
+     * 所有抽签序号
+     */
     @Column(name = "pool")
     String pool;
 

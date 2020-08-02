@@ -146,6 +146,7 @@ public class AchController {
         return ResultBean.success();
     }
 
+
     private List<Integer> getNumbers(int start,int end){
         ArrayList<Integer> list = new ArrayList<>();
         for (int i = start; i <= end; i++) {
