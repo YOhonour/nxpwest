@@ -21,7 +21,7 @@ public class AchievementService {
     @Autowired
     AchievementDao achievementDao;
 
-    public List<Achievement> getAchList(Integer comp_id){
+    public List<Achievement> getAchList(Integer comp_id) {
         logger.info("进入Service方法查询");
         List<Achievement> list = null;
         list = achievementDao.findAllByCompIDOrderBy(1);
@@ -33,11 +33,13 @@ public class AchievementService {
     TeamInfoDao teamInfoDao;
     @Autowired
     CompetitionDao competitionDao;
-    @CacheEvict(cacheNames = "rankList",key = "#comp_id")
-    public boolean addAchievement(Integer comp_id,Achievement achievement){
+
+    @CacheEvict(cacheNames = "rankList", key = "#comp_id")
+    public boolean addAchievement(Integer comp_id, Achievement achievement) {
         logger.info("添加成绩");
         achievementDao.save(achievement);
         return true;
     }
+
 
 }

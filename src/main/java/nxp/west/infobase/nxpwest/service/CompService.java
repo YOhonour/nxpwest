@@ -5,6 +5,7 @@ import nxp.west.infobase.nxpwest.entity.Competition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +14,9 @@ import java.util.List;
 public class CompService {
     @Autowired
     CompetitionDao competitionDao;
-    @Cacheable(cacheNames = "comp",key = "#comp_id")
-    public Competition getByID(Integer comp_id){
+
+    @Cacheable(cacheNames = "comp", key = "#comp_id")
+    public Competition getByID(Integer comp_id) {
         return competitionDao.findByCompId(comp_id);
     }
 //    //获取分类下所有比赛
@@ -23,8 +25,12 @@ public class CompService {
 //        List<Competition> allByTypeME = competitionDao.findAllByTypeME(teamTypeName);
 //        return allByTypeME;
 //    }
-    @CacheEvict(cacheNames = "compByType",key = "#teamTypeName")
-    public boolean removeCompCaches(String teamTypeName){
+
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "compByType", key = "#teamTypeName"),
+            @CacheEvict(cacheNames = "types", key = "1")
+    })
+    public boolean removeCompCaches(String teamTypeName) {
         return true;
     }
 }

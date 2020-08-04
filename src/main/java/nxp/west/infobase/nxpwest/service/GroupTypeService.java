@@ -15,6 +15,7 @@ import java.util.Set;
 public class GroupTypeService {
     @Autowired
     GroupTypeDao groupTypeDao;
+    
     @Cacheable(cacheNames = "types",key = "1")
     public List<GroupType> getAll(){
         return groupTypeDao.findAll();

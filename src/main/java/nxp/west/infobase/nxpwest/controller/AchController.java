@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @RestController
-@Api(value = "管理员接口",tags = "管理员接口")
+@Api(value = "管理员接口", tags = "管理员接口")
 public class AchController {
     @Autowired
     AchievementDao achievementDao;
@@ -37,30 +37,31 @@ public class AchController {
 
     //增加成绩 schoolName
     @PostMapping("/addScore")
-    @ApiOperation(value = "增加成绩",notes = "学校名、队伍名、队伍分类名、比赛名、用时(Double)")
-    public ResultBean addA(String schoolName,String teamName,String teamTypeName,String compName,Double scoreTime){
+    @ApiOperation(value = "增加成绩", notes = "学校名、队伍名、队伍分类名、比赛名、用时(Double)")
+    public ResultBean addA(String schoolName, String teamName, String teamTypeName, String compName, Double scoreTime) {
         List<GroupType> all = groupTypeService.getAll();
         GroupType groupType = null;
-        for (GroupType g :all) {
-            if (g.getType().equals(teamTypeName)){
-                groupType = g;break;
+        for (GroupType g : all) {
+            if (g.getType().equals(teamTypeName)) {
+                groupType = g;
+                break;
             }
         }
-        if (groupType == null){
-            return ResultBean.error(-1,"队伍类型不存在！");
+        if (groupType == null) {
+            return ResultBean.error(-1, "队伍类型不存在！");
         }
         final GroupType t = groupType;
 
         Competition competition = competitionDao.findOneME(compName, teamTypeName);
         TeamInfo teamInfo = teamInfoDao.findByTeamNameAndSchoolNameAndType_nameByme(teamName, schoolName, teamTypeName);
-        if (competition == null || teamInfo == null){
-            return ResultBean.error(-1,"队伍不存在或比赛不存在！");
+        if (competition == null || teamInfo == null) {
+            return ResultBean.error(-1, "队伍不存在或比赛不存在！");
         }
         Achievement achievement = new Achievement();
         achievement.setAchCompetition(competition);
         achievement.setTeamInfo(teamInfo);
         achievement.setAchTime(scoreTime);
-        achievementService.addAchievement(competition.getComp_id(),achievement);
+        achievementService.addAchievement(competition.getComp_id(), achievement);
         rankService.removeRankCache(competition.getComp_id());
         return ResultBean.success();
     }
@@ -69,19 +70,20 @@ public class AchController {
     CompetitionArrangementDao competitionArrangementDao;
     @Autowired
     CompService compService;
+
     @PostMapping("/getAllTeamByType") //
-    @ApiOperation(value = "获取分类下所有队伍",notes = "队伍分类名")
-    public ResultBean getAllTeamByType(String teamTypeName){
+    @ApiOperation(value = "获取分类下所有队伍", notes = "队伍分类名")
+    public ResultBean getAllTeamByType(String teamTypeName) {
         GroupType typeByName = groupTypeService.findGroupTypeByName(teamTypeName);
         List<TeamInfo> all = teamInfoDao.findAllByType_nameEquals(teamTypeName);
-        Map<String,List> map = new HashMap<>();
-        map.put("allTeamByType",all);
+        Map<String, List> map = new HashMap<>();
+        map.put("allTeamByType", all);
         return ResultBean.success(map);
     }
 
     @PostMapping("/addTeam") //
-    @ApiOperation(value = "增加队伍",notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
-    public ResultBean addTeam(String teamName,String schoolName,String  members,String teamTypeName){
+    @ApiOperation(value = "增加队伍", notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
+    public ResultBean addTeam(String teamName, String schoolName, String members, String teamTypeName) {
         GroupType typeByName = groupTypeService.findGroupTypeByName(teamTypeName);
         TeamInfo teamInfo = new TeamInfo();
         teamInfo.setSchoolName(schoolName);
@@ -94,19 +96,20 @@ public class AchController {
 
     //增加比赛安排 yyyy-MM-dd HH:mm
     @PostMapping("/addComp") //
-    @ApiOperation(value = "增加比赛",notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
-    public ResultBean addARR(String teamTypeName, String compName, String place, String timeInfo, Date drawLotsTime){
+    @ApiOperation(value = "增加比赛", notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
+    public ResultBean addARR(String teamTypeName, String compName, String place, String timeInfo, Date drawLotsTime) {
         Competition competition = new Competition();
         competition.setComp_name(compName);
         List<GroupType> all = groupTypeService.getAll();
         GroupType groupType = null;
-        for (GroupType g :all) {
-            if (g.getType().equals(teamTypeName)){
-                groupType = g;break;
+        for (GroupType g : all) {
+            if (g.getType().equals(teamTypeName)) {
+                groupType = g;
+                break;
             }
         }
-        if (groupType == null){
-            return ResultBean.error(-1,"队伍类型不存在！");
+        if (groupType == null) {
+            return ResultBean.error(-1, "队伍类型不存在！");
         }
         competition.setType_name(groupType);
 
@@ -119,10 +122,10 @@ public class AchController {
         competition.setCompetitionArrangement(save1);
         Competition save = competitionDao.save(competition);
 //        competitionArrangement.setCompetition(save);
+        // 清除缓存
         compService.removeCompCaches(teamTypeName);
         return ResultBean.success();
     }
-
 
 
     @Autowired
@@ -132,8 +135,8 @@ public class AchController {
      * 初始化抽签池
      */
     @PostMapping("/pool")
-    @ApiOperation(value = "初始化抽签池",notes = "比赛id 比赛队伍数量 抽签开始时间 抽签结束时间")
-    public ResultBean  saveDrawPool(Integer compId, Integer teamNumber, Date startTime, Date endTime) throws JsonProcessingException {
+    @ApiOperation(value = "初始化抽签池", notes = "比赛id 比赛队伍数量 抽签开始时间 抽签结束时间")
+    public ResultBean saveDrawPool(Integer compId, Integer teamNumber, Date startTime, Date endTime) throws JsonProcessingException {
         DrawLotsPool pool = new DrawLotsPool();
         pool.setId(compId);
         List<Integer> list = getNumbers(1, teamNumber);
@@ -147,7 +150,7 @@ public class AchController {
     }
 
 
-    private List<Integer> getNumbers(int start,int end){
+    private List<Integer> getNumbers(int start, int end) {
         ArrayList<Integer> list = new ArrayList<>();
         for (int i = start; i <= end; i++) {
             list.add(i);
@@ -156,9 +159,9 @@ public class AchController {
     }
 
     @GetMapping("/tt")
-    void  tt(String name, String age, String mapJson, HttpServletRequest request){
+    void tt(String name, String age, String mapJson, HttpServletRequest request) {
         Enumeration<String> attributeNames = request.getAttributeNames();
-        System.out.println(name+":"+age);
+        System.out.println(name + ":" + age);
         System.out.println(mapJson);
     }
 
