@@ -45,6 +45,11 @@ public class DrawLotsService {
     @Transactional
     public Integer doDrawLots(String phone, Integer comp_id) throws JsonProcessingException, DrawException, DrawErrorException {
         User user = userDao.findByPhoneEquals(phone);
+
+        if (user == null){
+            // 没有该用户时提示注册
+            throw new DrawErrorException("请先注册");
+        }
         TeamInfo teamInfo = user.getTeamInfo();
         DrawLots drawLots = new DrawLots();
         drawLots.setTeamId(teamInfo.getId());

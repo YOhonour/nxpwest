@@ -6,6 +6,7 @@ import nxp.west.infobase.nxpwest.dao.CompetitionDao;
 import nxp.west.infobase.nxpwest.entity.Competition;
 import nxp.west.infobase.nxpwest.entity.CompetitionArrangement;
 import nxp.west.infobase.nxpwest.entity.GroupType;
+import nxp.west.infobase.nxpwest.service.CompService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,8 @@ public class CompTest {
     @Autowired
     CompetitionArrangementDao competitionArrangementDao;
 
+    @Autowired
+    CompService compService;
 
 
     /**
@@ -34,7 +37,7 @@ public class CompTest {
     @Test
     void saveTest() {
         Competition competition = new Competition();
-        competition.setComp_name("8月4日测试");
+        competition.setComp_name("8月4日测试2");
         GroupType groupType = new GroupType();
         groupType.setTypeId(2);
         groupType.setType("四轮光电组");
@@ -43,9 +46,9 @@ public class CompTest {
         arrangement.setArgPlace("研究中心");
         arrangement.setDrawLotsTime(new Date());
         arrangement.setArgTimeInfo("5.20 9:00 - 5.21 16:00");
-        CompetitionArrangement saved = competitionArrangementDao.save(arrangement);
-        competition.setCompetitionArrangement(saved);
+//        CompetitionArrangement saved = competitionArrangementDao.save(arrangement);
+//        competition.setCompetitionArrangement(saved);
         // 需要先保存关联的对象
-        competitionDao.save(competition);
+        compService.save(arrangement,competition);
     }
 }

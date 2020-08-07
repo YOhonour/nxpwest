@@ -9,8 +9,11 @@ import nxp.west.infobase.nxpwest.dao.*;
 import nxp.west.infobase.nxpwest.entity.*;
 import nxp.west.infobase.nxpwest.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -81,8 +84,8 @@ public class AchController {
         return ResultBean.success(map);
     }
 
-    @PostMapping("/addTeam") //
-    @ApiOperation(value = "增加队伍", notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
+    @PostMapping("/addTeam")
+    @ApiOperation(value = "增加队 //伍", notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
     public ResultBean addTeam(String teamName, String schoolName, String members, String teamTypeName) {
         GroupType typeByName = groupTypeService.findGroupTypeByName(teamTypeName);
         TeamInfo teamInfo = new TeamInfo();
@@ -117,13 +120,10 @@ public class AchController {
         competitionArrangement.setDrawLotsTime(drawLotsTime);
         competitionArrangement.setArgPlace(place);
         competitionArrangement.setArgTimeInfo(timeInfo);
-        CompetitionArrangement save1 = competitionArrangementDao.save(competitionArrangement);
 
-        competition.setCompetitionArrangement(save1);
-        Competition save = competitionDao.save(competition);
+        compService.save(competitionArrangement,competition);
 //        competitionArrangement.setCompetition(save);
-        // 清除缓存
-        compService.removeCompCaches(teamTypeName);
+
         return ResultBean.success();
     }
 
@@ -157,6 +157,24 @@ public class AchController {
         }
         return list;
     }
+
+    /**
+     * 清楚所有缓存
+     * @return
+     */
+    @DeleteMapping("/caches")
+    @Caching(evict = {
+            //成绩是直接导入数据库，所以手动清除缓存
+            @CacheEvict(value = "rankList",allEntries = true),
+            //比赛
+            @CacheEvict(value = "comp",allEntries = true),
+            //比赛
+            @CacheEvict(value = "types",key = "1")
+    })
+    public ResultBean removeCaches(){
+        return ResultBean.success();
+    }
+
 
     @GetMapping("/tt")
     void tt(String name, String age, String mapJson, HttpServletRequest request) {
