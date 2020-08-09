@@ -24,7 +24,7 @@ public class AchievementService {
     public List<Achievement> getAchList(Integer comp_id) {
         logger.info("进入Service方法查询");
         List<Achievement> list = null;
-        list = achievementDao.findAllByCompIDOrderBy(1);
+        list = achievementDao.findAllByCompIDOrderBy(comp_id);
         return list;
     }
 

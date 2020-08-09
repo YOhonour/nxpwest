@@ -21,7 +21,7 @@ public class RankService {
 
     @Cacheable(cacheNames = "rankList", key = "#comp_id")
     public List<Rank> getRankedList(Integer comp_id) {
-        List<Achievement> list = achievementService.getAchList(1);
+        List<Achievement> list = achievementService.getAchList(comp_id);
         if (list == null || list.size() == 0) {
             return new ArrayList<>();
         }
@@ -34,7 +34,7 @@ public class RankService {
     }
 
     public Rank getMyRank(Integer comp_id, Integer team_id) {
-        List<Achievement> list = achievementService.getAchList(1);
+        List<Achievement> list = achievementService.getAchList(comp_id);
         if (list == null) {
             return null;
         }
