@@ -42,7 +42,7 @@ spring:
 
 # 开发环境选择
   profiles:
-    active: dev
+    active: pro
 
 
 #debug: true

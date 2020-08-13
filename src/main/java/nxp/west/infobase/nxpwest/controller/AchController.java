@@ -64,6 +64,12 @@ public class AchController {
             return ResultBean.error(-1, "队伍不存在或比赛不存在！");
         }
         Achievement achievement = new Achievement();
+        // 防止同一个团队且同一场比赛出现多个成绩。
+        Achievement achievementSaved = achievementDao.findAchievementByCompIDAndTeamId(competition.getComp_id(), teamInfo.getId());
+        if (achievementSaved != null){
+            // 更新
+            achievement.setAchId(achievementSaved.getAchId());
+        }
         achievement.setAchCompetition(competition);
         achievement.setTeamInfo(teamInfo);
         achievement.setAchTime(scoreTime);
