@@ -66,6 +66,14 @@ public class DrawLotsService {
         DrawLotsPool drawLotsPool = poolDao.findByIdEquals(comp_id);
         Date date = new Date();
 
+        // 判断是否已经抽过签
+        Optional<DrawLots> one = drawLotsDao.findOne(Example.of(drawLots));
+        if (one.isPresent()) {
+            //如果查询出结果说明已经抽签
+            //返回之前抽的签
+            return one.get().getOrderNumber();
+        }
+
         // 判断是否开始抽签
         if (date.before(drawLotsPool.getStartTime()) || date.after(drawLotsPool.getEndTime())) {
             // 如果没开始，则报错
@@ -76,13 +84,6 @@ public class DrawLotsService {
             throw new DrawErrorException(String.format("抽签时间在 %s 到 %s", startTime, endTime));
         }
 
-        // 判断是否已经抽过签
-        Optional<DrawLots> one = drawLotsDao.findOne(Example.of(drawLots));
-        if (one.isPresent()) {
-            //如果查询出结果说明已经抽签
-            //返回之前抽的签
-            return one.get().getOrderNumber();
-        }
 
 
         List<Integer> list1 = mapper.readValue(drawLotsPool.getPool(), List.class);

@@ -6,7 +6,7 @@ spring:
 #    url: jdbc:mysql://39.108.158.74:3306/nxp?serverTimezone=Asia/Shanghai
 #    url: jdbc:mysql://localhost:3306/nxp?serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
-    data: classpath:/static/group_type.sql
+#    data: classpath:/static/group_type.sql
 #    initialization-mode: always
     type: com.alibaba.druid.pool.DruidDataSource
     druid:

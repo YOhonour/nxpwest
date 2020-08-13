@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import nxp.west.infobase.nxpwest.annotation.Admin;
 import nxp.west.infobase.nxpwest.bean.ResultBean;
 import nxp.west.infobase.nxpwest.dao.*;
 import nxp.west.infobase.nxpwest.entity.*;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @RestController
@@ -40,6 +42,7 @@ public class AchController {
 
     //增加成绩 schoolName
     @PostMapping("/addScore")
+    @Admin
     @ApiOperation(value = "增加成绩", notes = "学校名、队伍名、队伍分类名、比赛名、用时(Double)")
     public ResultBean addA(String schoolName, String teamName, String teamTypeName, String compName, Double scoreTime) {
         List<GroupType> all = groupTypeService.getAll();
@@ -76,6 +79,7 @@ public class AchController {
 
     @PostMapping("/getAllTeamByType") //
     @ApiOperation(value = "获取分类下所有队伍", notes = "队伍分类名")
+    @Admin
     public ResultBean getAllTeamByType(String teamTypeName) {
         GroupType typeByName = groupTypeService.findGroupTypeByName(teamTypeName);
         List<TeamInfo> all = teamInfoDao.findAllByType_nameEquals(teamTypeName);
@@ -86,6 +90,7 @@ public class AchController {
 
     @PostMapping("/addTeam")
     @ApiOperation(value = "增加队 //伍", notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
+    @Admin
     public ResultBean addTeam(String teamName, String schoolName, String members, String teamTypeName) {
         GroupType typeByName = groupTypeService.findGroupTypeByName(teamTypeName);
         TeamInfo teamInfo = new TeamInfo();
@@ -100,6 +105,7 @@ public class AchController {
     //增加比赛安排 yyyy-MM-dd HH:mm
     @PostMapping("/addComp") //
     @ApiOperation(value = "增加比赛", notes = "队伍分类名、比赛名、场地、比赛时间、抽签截止时间")
+    @Admin
     public ResultBean addARR(String teamTypeName, String compName, String place, String timeInfo, Date drawLotsTime) {
         Competition competition = new Competition();
         competition.setComp_name(compName);
@@ -136,6 +142,7 @@ public class AchController {
      */
     @PostMapping("/pool")
     @ApiOperation(value = "初始化抽签池", notes = "比赛id 比赛队伍数量 抽签开始时间 抽签结束时间")
+    @Admin
     public ResultBean saveDrawPool(Integer compId, Integer teamNumber, Date startTime, Date endTime) throws JsonProcessingException {
         DrawLotsPool pool = new DrawLotsPool();
         pool.setId(compId);
@@ -171,6 +178,7 @@ public class AchController {
             //比赛
             @CacheEvict(value = "types",key = "1")
     })
+    @Admin
     public ResultBean removeCaches(){
         return ResultBean.success();
     }
@@ -183,4 +191,17 @@ public class AchController {
         System.out.println(mapJson);
     }
 
+    @Autowired
+    AdminDao adminDao;
+
+    @GetMapping("/admin/login")
+    public ResultBean login(String username, String password, HttpServletRequest request){
+        nxp.west.infobase.nxpwest.entity.Admin admin = adminDao.findAdminByAdminAndPassword(username, password);
+        if (admin == null){
+            return ResultBean.error(-1,"密码错误");
+        }
+        HttpSession session = request.getSession(true);
+        session.setAttribute("admin",admin.getAdmin());
+        return ResultBean.success();
+    }
 }
